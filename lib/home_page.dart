@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mario/button.dart';
 import 'package:mario/jumping_mario.dart';
 import 'package:mario/mario.dart';
@@ -20,6 +21,9 @@ class _HomePageState extends State<HomePage> {
   String direction = 'right';
   bool midrun = false;
   bool midjump = false;
+  var gameFont = GoogleFonts.pressStart2p(
+    textStyle: const TextStyle(color: Colors.white, fontSize: 20),
+  );
 
   void preJamp() {
     time = 0;
@@ -67,7 +71,7 @@ class _HomePageState extends State<HomePage> {
 
   void moveLeft() {
     direction = 'left';
-        Timer.periodic(const Duration(microseconds: 35000), (timer) {
+    Timer.periodic(const Duration(microseconds: 35000), (timer) {
       time += 0.05;
       height = -4.9 * time * time + 5 * time;
 
@@ -89,20 +93,54 @@ class _HomePageState extends State<HomePage> {
         children: [
           Expanded(
             flex: 4,
-            child: Container(
-              color: Colors.blue,
-              child: AnimatedContainer(
-                alignment: Alignment(marioX, marioY),
-                duration: const Duration(milliseconds: 0),
-                child: midjump
-                    ? JumpingMario(
-                        direction: direction,
-                      )
-                    : MyMario(
-                        direction: direction,
-                        midrun: midrun,
+            child: Stack(
+              children: [
+                const Text('MARIO'),
+                Container(
+                  color: Colors.blue,
+                  child: AnimatedContainer(
+                    alignment: Alignment(marioX, marioY),
+                    duration: const Duration(milliseconds: 0),
+                    child: midjump
+                        ? JumpingMario(
+                            direction: direction,
+                          )
+                        : MyMario(
+                            direction: direction,
+                            midrun: midrun,
+                          ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Column(
+                        children: [
+                          Text('MARIO', style: gameFont),
+                          const SizedBox(height: 10),
+                          Text('0000', style: gameFont),
+                        ],
                       ),
-              ),
+                      Column(
+                        children: [
+                          Text('WORLD', style: gameFont),
+                          const SizedBox(height: 10),
+                          Text('1-1', style: gameFont),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Text('TIME', style: gameFont),
+                          const SizedBox(height: 10),
+                          Text('9999', style: gameFont),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
