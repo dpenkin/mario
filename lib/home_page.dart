@@ -5,6 +5,8 @@ import 'package:mario/jumping_mario.dart';
 import 'package:mario/mario.dart';
 import 'dart:async';
 
+import 'package:mario/shrooms.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -15,6 +17,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   static double marioX = 0;
   static double marioY = 1;
+  double shroomX = 0.5;
+  double shroomY = 1.05;
+  double marioSize = 50;
   double time = 0;
   double height = 0;
   double initialHeight = marioY;
@@ -25,40 +30,52 @@ class _HomePageState extends State<HomePage> {
     textStyle: const TextStyle(color: Colors.white, fontSize: 20),
   );
 
+  void checkIfAteShrooms() {
+    if ((marioX - shroomX).abs() < 0.05 && (marioY - shroomY).abs() < 0.05) {
+      setState(() {
+        shroomX == 2;
+        marioSize == 100;
+      });
+    }
+  }
+
   void preJamp() {
     time = 0;
     initialHeight = marioY;
   }
 
   void jump() {
-    midjump = true;
-    preJamp();
-    Timer.periodic(const Duration(microseconds: 35000), (timer) {
-      time += 0.05;
-      height = -4.9 * time * time + 5 * time;
+    if (midjump == false) {
+      midjump = true;
+      preJamp();
+      Timer.periodic(const Duration(microseconds: 35000), (timer) {
+        time += 0.05;
+        height = -4.9 * time * time + 5 * time;
 
-      if (initialHeight - height > 1) {
-        midjump = false;
-        setState(() {
-          marioY = 1;
-          timer.cancel();
-        });
-      } else {
-        setState(() {
-          marioY = initialHeight - height;
-        });
-      }
-    });
+        if (initialHeight - height > 1) {
+          midjump = false;
+          setState(() {
+            marioY = 1;
+            timer.cancel();
+          });
+        } else {
+          setState(() {
+            marioY = initialHeight - height;
+          });
+        }
+      });
+    }
   }
 
   void moveRight() {
     direction = 'right';
-
+    checkIfAteShrooms();
     Timer.periodic(const Duration(microseconds: 35000), (timer) {
+      checkIfAteShrooms();
       time += 0.05;
       height = -4.9 * time * time + 5 * time;
 
-      if (MyButton().userIsHoldingButton() == true) {
+      if (MyButton().userIsHoldingButton() == true && marioX + 0.02 < 1) {
         setState(() {
           marioX += 0.02;
           midrun = !midrun;
@@ -71,11 +88,13 @@ class _HomePageState extends State<HomePage> {
 
   void moveLeft() {
     direction = 'left';
+    checkIfAteShrooms();
     Timer.periodic(const Duration(microseconds: 35000), (timer) {
+      checkIfAteShrooms();
       time += 0.05;
       height = -4.9 * time * time + 5 * time;
 
-      if (MyButton().userIsHoldingButton() == true) {
+      if (MyButton().userIsHoldingButton() == true && marioX - 0.02 > -1) {
         setState(() {
           marioX -= 0.02;
           midrun = !midrun;
@@ -104,12 +123,18 @@ class _HomePageState extends State<HomePage> {
                     child: midjump
                         ? JumpingMario(
                             direction: direction,
+                            size: marioSize,
                           )
                         : MyMario(
                             direction: direction,
                             midrun: midrun,
+                            size: marioSize,
                           ),
                   ),
+                ),
+                Container(
+                  alignment: Alignment(shroomX, shroomY),
+                  child: MyShroom(),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 10),
@@ -151,11 +176,11 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   MyButton(
+                    function: moveLeft,
                     child: const Icon(
                       Icons.arrow_back,
                       color: Colors.white,
                     ),
-                    function: moveLeft,
                   ),
                   MyButton(
                     function: jump,
